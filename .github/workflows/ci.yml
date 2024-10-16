@@ -1,5 +1,6 @@
-name: OWASP ZAP Scan
-
+name: ZAP API Scan
+uses: zaproxy/action-api-scan@v0.8.0
+            
 on: [push]
 
 jobs:
