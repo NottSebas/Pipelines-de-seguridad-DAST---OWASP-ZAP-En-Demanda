@@ -1,34 +1,29 @@
-name: ZAP API Scan
-uses: zaproxy/action-api-scan@v0.8.0
-            
-on: [push]
+name: OWASP ZAP Security Scan
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  zap_scan:
+  security_scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
-
-      - name: Start OWASP ZAP
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Run OWASP ZAP
         run: |
-          docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -port 8080 -host 0.0.0.0
-          sleep 10  # Esperar a que ZAP esté listo para recibir peticiones
-
-      - name: Run spider scan
-        run: |
+          docker run -u zap -p 8080:8080 -d owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0
+          sleep 10
           curl "http://localhost:8080/JSON/spider/action/scan/?url=http://your-app-url.com"
-      
-      - name: Run active scan
-        run: |
           curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://your-app-url.com"
-      
-      - name: Download ZAP HTML report
-        run: |
           curl "http://localhost:8080/OTHER/core/other/htmlreport/" > zap_report.html
 
       - name: Upload ZAP report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: zap-report
           path: zap_report.html
+
+
