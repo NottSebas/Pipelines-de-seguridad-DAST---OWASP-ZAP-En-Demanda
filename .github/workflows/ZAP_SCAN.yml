@@ -1,5 +1,4 @@
-# .github/workflows/zap_scan.yml
-name: OWASP ZAP Scan
+name: OWASP ZAP DAST Security Scan
 
 on:
   push:
@@ -10,46 +9,51 @@ on:
       - main
 
 jobs:
-  zap_scan:
+  security-scan:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Checkout del código de la aplicación
-      - name: Check out the repo
+      # Paso 1: Checkout del código
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # Paso 2: Iniciar OWASP ZAP en modo headless
+      # Paso 2: Configuración de Docker
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get remove -y containerd  # Evita conflicto con containerd.io
+          sudo apt-get install -y docker.io  # Instalar Docker
+
+      # Paso 3: Ejecutar OWASP ZAP con la imagen correcta
       - name: Start OWASP ZAP
         run: |
-          docker pull owasp/zap2docker-stable
-          docker run -d --name zap -u zap -p 8080:8080 owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080
+          docker pull owasp/zap  # Descargar la imagen correcta de OWASP ZAP
+          
+          # Iniciar OWASP ZAP en modo demonio (daemon)
+          docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -host 0.0.0.0 -port 8080
+          sleep 15  # Esperar que ZAP esté listo
 
-      # Paso 3: Esperar a que OWASP ZAP esté listo
-      - name: Wait for ZAP to start
+      # Paso 4: Ejecutar el escaneo de OWASP ZAP en la aplicación
+      - name: Run OWASP ZAP Spider Scan
         run: |
-          sleep 30
+          # Reemplaza 'http://tu-app-url.com' con la URL de tu aplicación
+          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://tu-app-url.com"
+          
+          # Escaneo activo
+          curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://tu-app-url.com"
 
-      # Paso 4: Ejecutar el escaneo Spider con OWASP ZAP
-      - name: Run OWASP ZAP Spider
-        run: |
-          docker exec zap zap-cli -p 8080 spider http://localhost:8081
-
-      # Paso 5: Ejecutar el escaneo activo con OWASP ZAP
-      - name: Run OWASP ZAP Active Scan
-        run: |
-          docker exec zap zap-cli -p 8080 active-scan http://localhost:8081
-
-      # Paso 6: Generar un reporte de vulnerabilidades
+      # Paso 5: Obtener el reporte en formato HTML
       - name: Generate OWASP ZAP Report
         run: |
-          docker exec zap zap-cli -p 8080 report -o zap_report.html -f html
+          curl "http://localhost:8080/OTHER/core/other/htmlreport/" > zap_report.html
 
-      # Paso 7: Subir el reporte como artefacto de GitHub Actions
-      - name: Upload ZAP Report
+      # Paso 6: Subir el reporte como un artefacto
+      - name: Upload ZAP report
         uses: actions/upload-artifact@v3
         with:
-          name: ZAP Report
+          name: zap-report
           path: zap_report.html
+
 
 
  
