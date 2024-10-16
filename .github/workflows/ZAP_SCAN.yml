@@ -14,7 +14,7 @@ jobs:
     steps:
       # Paso 1: Checkout del código de la aplicación
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Paso 2: Iniciar OWASP ZAP en modo headless
       - name: Start OWASP ZAP
@@ -44,7 +44,7 @@ jobs:
 
       # Paso 7: Subir el reporte como artefacto de GitHub Actions
       - name: Upload ZAP Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ZAP Report
           path: zap_report.html
