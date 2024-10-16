@@ -21,7 +21,18 @@ jobs:
           sudo apt-get update
           sudo apt-get remove -y containerd  # Eliminar containerd para evitar conflicto
           sudo apt-get install -y docker.io
+          sudo apt update
+          sudo apt upgrade -y
+          sudo apt-get remove -y containerd
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          sudo apt-get autoclean
+          sudo apt-get install -f
+          sudo apt-get install -y docker.io
+          sudo systemctl status docker
 
+        
+          
       - name: Start OWASP ZAP
         run: |
           docker pull owasp/zap
