@@ -30,9 +30,23 @@ jobs:
           sudo apt-get install -f
           sudo apt-get install -y docker.io
           sudo systemctl status docker
+      - name: Remove conflicting packages
+        run: |
+          sudo apt-get remove -y containerd || true
+          sudo apt-get autoremove -y
+      - name: Clean up
+        run: |
+          sudo apt-get clean
+          sudo apt-get autoclean
 
-        
-          
+      - name: Fix broken dependencies
+        run: sudo apt-get install -f
+
+      - name: Install Docker
+        run: sudo apt-get install -y docker.io
+
+      - name: Check Docker status
+        run: sudo systemctl status docker
       - name: Start OWASP ZAP
         run: |
           docker pull owasp/zap
