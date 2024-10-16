@@ -1,48 +1,54 @@
-name: OWASP ZAP DAST Escaneo de seguridad
+# .github/workflows/zap_scan.yml
+name: OWASP ZAP Scan
 
 on:
-  push:
-    branches:
-      - main
+  # Ejecuta el workflow en cada pull request a la rama main
   pull_request:
     branches:
       - main
 
 jobs:
-  security-scan:
+  zap_scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # Paso 1: Checkout del código de la aplicación
+      - name: Check out the repo
+        uses: actions/checkout@v2
 
-      - name: Set up Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get remove -y containerd  
-          sudo apt-get install -y docker.io  
-
+      # Paso 2: Iniciar OWASP ZAP en modo headless
       - name: Start OWASP ZAP
         run: |
-          docker pull owasp/zap 
-          
-          docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -port 8080 -host 0.0.0.0
-          sleep 15
-      - name: Run OWASP ZAP Spider Scan
-        run: |
-          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://localhost:8081"
-          
-          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://localhost:8081"
+          docker pull owasp/zap2docker-stable
+          docker run -d --name zap -u zap -p 8080:8080 owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080
 
+      # Paso 3: Esperar a que OWASP ZAP esté listo
+      - name: Wait for ZAP to start
+        run: |
+          sleep 30
+
+      # Paso 4: Ejecutar el escaneo Spider con OWASP ZAP
+      - name: Run OWASP ZAP Spider
+        run: |
+          docker exec zap zap-cli -p 8080 spider http://localhost:8081
+
+      # Paso 5: Ejecutar el escaneo activo con OWASP ZAP
+      - name: Run OWASP ZAP Active Scan
+        run: |
+          docker exec zap zap-cli -p 8080 active-scan http://localhost:8081
+
+      # Paso 6: Generar un reporte de vulnerabilidades
       - name: Generate OWASP ZAP Report
         run: |
-          curl "http://localhost:8080/OTHER/core/other/htmlreport/" > zap_report.html
+          docker exec zap zap-cli -p 8080 report -o zap_report.html -f html
 
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v3
+      # Paso 7: Subir el reporte como artefacto de GitHub Actions
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v2
         with:
-          name: zap-report
+          name: ZAP Report
           path: zap_report.html
+
 
  
 
