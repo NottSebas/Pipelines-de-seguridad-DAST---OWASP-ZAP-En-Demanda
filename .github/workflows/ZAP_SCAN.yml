@@ -2,7 +2,9 @@
 name: OWASP ZAP Scan
 
 on:
-  # Ejecuta el workflow en cada pull request a la rama main
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
