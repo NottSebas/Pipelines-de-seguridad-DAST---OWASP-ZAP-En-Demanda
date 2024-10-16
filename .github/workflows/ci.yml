@@ -19,22 +19,27 @@ jobs:
       - name: Set up Docker
         run: |
           sudo apt-get update
+          sudo apt-get remove -y containerd  # Eliminar containerd para evitar conflicto
           sudo apt-get install -y docker.io
 
-      - name: Run OWASP ZAP
+      - name: Start OWASP ZAP
         run: |
-          docker pull owasp/zap2docker-weekly
-          docker run -u zap -p 8080:8080 -d owasp/zap2docker-weekly zap.sh -daemon -port 8080 -host 0.0.0.0
-          sleep 10
+          docker pull owasp/zap
+          docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -port 8080 -host 0.0.0.0
+          sleep 10  # Esperar que ZAP esté listo
+
+      - name: Run ZAP scan
+        run: |
           curl "http://localhost:8080/JSON/spider/action/scan/?url=http://tu-app-url.com"
           curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://tu-app-url.com"
           curl "http://localhost:8080/OTHER/core/other/htmlreport/" > zap_report.html
 
-      - name: Upload report
+      - name: Upload ZAP report
         uses: actions/upload-artifact@v3
         with:
           name: zap-report
           path: zap_report.html
+
 
 
 
