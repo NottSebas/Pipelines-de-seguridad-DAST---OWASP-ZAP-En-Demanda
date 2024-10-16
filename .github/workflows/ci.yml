@@ -1,42 +1,32 @@
-name: OWASP ZAP Security Scan
+name: OWASP ZAP Scan
 
-on:
-  # Configurar cuándo se ejecuta el workflow
-  # Puedes cambiar "push" y "pull_request" para adecuarlo a tu flujo de trabajo.
-  push:
-    branches:
-      - main  # Ejecutar el workflow cuando haya un push a la rama 'main'
-
-  pull_request:
-    branches:
-      - main  # También ejecutarlo en los pull requests hacia 'main'
+on: [push]
 
 jobs:
-  security_scan:
-    runs-on: ubuntu-latest  # Se ejecuta en un servidor de Ubuntu
-
+  zap_scan:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code  # Descargar el código fuente del repositorio
+      - name: Check out the repository
         uses: actions/checkout@v3
 
-      - name: Start OWASP ZAP  # Iniciar OWASP ZAP en modo daemon
+      - name: Start OWASP ZAP
         run: |
-          docker run -u zap -p 8080:8080 -d owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0
-          sleep 10  # Esperar que ZAP esté listo
+          docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -port 8080 -host 0.0.0.0
+          sleep 10  # Esperar a que ZAP esté listo para recibir peticiones
 
-      - name: Run OWASP ZAP Spider  # Ejecutar el spidering para encontrar URLs
+      - name: Run spider scan
         run: |
           curl "http://localhost:8080/JSON/spider/action/scan/?url=http://your-app-url.com"
-
-      - name: Run OWASP ZAP Active Scan  # Ejecutar el escaneo activo en la URL
+      
+      - name: Run active scan
         run: |
           curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://your-app-url.com"
-
-      - name: Generate OWASP ZAP Report  # Generar un reporte HTML de vulnerabilidades
+      
+      - name: Download ZAP HTML report
         run: |
           curl "http://localhost:8080/OTHER/core/other/htmlreport/" > zap_report.html
 
-      - name: Upload OWASP ZAP Report  # Subir el reporte como un artefacto del workflow
+      - name: Upload ZAP report
         uses: actions/upload-artifact@v3
         with:
           name: zap-report
