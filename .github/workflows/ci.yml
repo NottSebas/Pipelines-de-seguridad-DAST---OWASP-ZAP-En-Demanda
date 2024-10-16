@@ -7,7 +7,37 @@ on:
   pull_request:
     branches:
       - main
+jobs:
+  install-docker:
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Update apt packages
+        run: sudo apt-get update
+
+      - name: Remove conflicting packages
+        run: |
+          sudo apt-get remove -y containerd || true
+          sudo apt-get autoremove -y
+
+      - name: Clean up
+        run: |
+          sudo apt-get clean
+          sudo apt-get autoclean
+
+      - name: Fix broken dependencies
+        run: sudo apt-get install -f
+
+      - name: Install Docker
+        run: sudo apt-get install -y docker.io
+
+      - name: Check Docker status
+        run: |
+          sudo systemctl start docker
+          sudo systemctl status docker
 jobs:
   security-scan:
     runs-on: ubuntu-latest
