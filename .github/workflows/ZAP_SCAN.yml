@@ -26,17 +26,14 @@ jobs:
         run: |
           docker pull owasp/zap  # Descargar la imagen de OWASP ZAP
           
-          # Iniciar OWASP ZAP en modo demonio (daemon)
           docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -port 8080 -host 0.0.0.0
-          sleep 15  # Esperar que ZAP esté listo
-
+          sleep 15
       - name: Run OWASP ZAP Spider Scan
         run: |
-          # Reemplaza 'http://tu-app-url.com' con la URL de tu aplicación
-          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://tu-app-url.com"
+          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://localhost:8080"
           
           # Escaneo activo
-          curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://tu-app-url.com"
+          curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://localhost:8080"
 
       - name: Generate OWASP ZAP Report
         run: |
