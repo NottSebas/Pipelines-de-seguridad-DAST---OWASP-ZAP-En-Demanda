@@ -38,63 +38,7 @@ jobs:
         run: |
           sudo systemctl start docker
           sudo systemctl status docker
- jobs:
-  security-scan:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get remove -y containerd  # Eliminar containerd para evitar conflicto
-          sudo apt-get install -y docker.io
-          sudo apt update
-          sudo apt upgrade -y
-          sudo apt-get remove -y containerd
-          sudo apt-get autoremove -y
-          sudo apt-get clean
-          sudo apt-get autoclean
-          sudo apt-get install -f
-          sudo apt-get install -y docker.io
-          sudo systemctl status docker
-      - name: Remove conflicting packages
-        run: |
-          sudo apt-get remove -y containerd || true
-          sudo apt-get autoremove -y
-      - name: Clean up
-        run: |
-          sudo apt-get clean
-          sudo apt-get autoclean
-
-      - name: Fix broken dependencies
-        run: sudo apt-get install -f
-
-      - name: Install Docker
-        run: sudo apt-get install -y docker.io
-
-      - name: Check Docker status
-        run: sudo systemctl status docker
-      - name: Start OWASP ZAP
-        run: |
-          docker pull owasp/zap
-          docker run -u zap -p 8080:8080 -d owasp/zap zap.sh -daemon -port 8080 -host 0.0.0.0
-          sleep 10  # Esperar que ZAP esté listo
-
-      - name: Run ZAP scan
-        run: |
-          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://tu-app-url.com"
-          curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://tu-app-url.com"
-          curl "http://localhost:8080/OTHER/core/other/htmlreport/" > zap_report.html
-
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v3
-        with:
-          name: zap-report
-          path: zap_report.html
-
+ 
 
 
 
