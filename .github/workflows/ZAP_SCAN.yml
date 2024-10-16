@@ -30,10 +30,9 @@ jobs:
           sleep 15
       - name: Run OWASP ZAP Spider Scan
         run: |
-          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://localhost:8080"
+          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://localhost:8081"
           
-          # Escaneo activo
-          curl "http://localhost:8080/JSON/ascan/action/scan/?url=http://localhost:8080"
+          curl "http://localhost:8080/JSON/spider/action/scan/?url=http://localhost:8081"
 
       - name: Generate OWASP ZAP Report
         run: |
