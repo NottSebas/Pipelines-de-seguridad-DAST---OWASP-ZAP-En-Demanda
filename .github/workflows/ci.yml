@@ -22,7 +22,6 @@ jobs:
           sudo apt-get install -y docker.io
           sudo apt-get install -f
           sudo dpkg --configure -a
-          sudo apt update
           sudo apt install containerd.io
 
 
