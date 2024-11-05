@@ -1,6 +1,14 @@
 name: OWASP ZAP DAST Scan
 
-on:
+on: 
+  push: 
+    branches: 
+      - main 
+  pull_request: 
+    branches: 
+      - main 
+    schedule: 
+      - cron: '0 1 * * *'
 
 jobs:
   zap_scan:
