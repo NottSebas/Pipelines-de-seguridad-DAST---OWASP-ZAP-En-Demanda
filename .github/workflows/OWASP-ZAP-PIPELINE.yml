@@ -21,7 +21,7 @@ jobs:
 
       - name: Run ZAP Scan
         run: |
-          /home/runner/work/zap/ZAP_2_11_1/zap.sh -quickurl https://example.com -apikey YOUR_API_KEY
+          /home/runner/work/zap/ZAP_2_11_1/zap.sh -quickurl https://ui-dev.joyit.io/recruitment/dashboard -apikey htluc3g86mchlm0scp2o2cg7ea
 
       - name: Upload results
         uses: actions/upload-artifact@v2
