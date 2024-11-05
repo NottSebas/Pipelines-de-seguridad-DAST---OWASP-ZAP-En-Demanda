@@ -1,59 +1,59 @@
 name: OWASP ZAP DAST Scan
 
 on:
-    schedule:
-        # Ejecuta el escaneo todos los días a las 01:00
-        - cron: '0 1 * * *'
+  schedule:
+    # Ejecuta el escaneo todos los días a las 01:00
+    - cron: '0 1 * * *'
 
 jobs:
-    zap_scan:
-        runs-on: ubuntu-latest
+  zap_scan:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-                uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Set up ZAP
-                run: |
-                    wget https://zap.wiretrust.com/download/zap-2.11.1.sh
-                    chmod +x zap-2.11.1.sh
-                    ./zap-2.11.1.sh -dir /home/runner/work/zap
+      - name: Set up ZAP
+        run: |
+          wget https://github.com/zaproxy/zaproxy/releases/download/v2.11.1/ZAP_2_11_1_unix.sh
+          chmod +x ZAP_2_11_1_unix.sh
+          ./ZAP_2_11_1_unix.sh -dir /home/runner/work/zap
 
-            - name: Run ZAP Scan
-                run: |
-                    /home/runner/work/zap/owasp-zap/zap.sh -quick -quickurl https://example.com -apikey htluc3g86mchlm0scp2o2cg7ea
+      - name: Run ZAP Scan
+        run: |
+          /home/runner/work/zap/ZAP_2_11_1/zap.sh -quickurl https://example.com -apikey YOUR_API_KEY
 
-            - name: Upload results
-                uses: actions/upload-artifact@v2
-                with:
-                    name: zap-scan-results
-                    path: /home/runner/work/zap/owasp-zap/scan_results.xml
+      - name: Upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-scan-results
+          path: /home/runner/work/zap/scan_results.xml
 
-            - name: Create issue for vulnerabilities
-                uses: actions/github-script@v3
-                with:
-                    script: |
-                        const issues = await github.issues.list({
-                            owner: context.repo.owner,
-                            repo: context.repo.repo,
-                            state: 'open',
-                            labels: ['zap-scan']
-                        });
-                        if (issues.data.length > 0) {
-                            issues.data.forEach(issue => {
-                                github.issues.update({
-                                    owner: context.repo.owner,
-                                    repo: context.repo.repo,
-                                    issue_number: issue.number,
-                                    title: `New vulnerabilities found by OWASP ZAP scan: ${issue.title}`,
-                                    body: `Details: ${issue.body}`
-                                });
-                            });
-                        } else {
-                            github.issues.create({
-                                owner: context.repo.owner,
-                                repo: context.repo.repo,
-                                title: `New vulnerabilities found by OWASP ZAP scan`,
-                                body: `Details: [View scan results](attachment://scan_results.xml)`
-                            });
-                        }
+      - name: Create issue for vulnerabilities
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const issues = await github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['zap-scan']
+            });
+            if (issues.data.length > 0) {
+              issues.data.forEach(issue => {
+                github.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  title: `New vulnerabilities found by OWASP ZAP scan: ${issue.title}`,
+                  body: `Details: ${issue.body}`
+                });
+              });
+            } else {
+              github.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `New vulnerabilities found by OWASP ZAP scan`,
+                body: `Details: [View scan results](attachment://scan_results.xml)`
+              });
+            }
