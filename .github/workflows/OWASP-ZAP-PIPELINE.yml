@@ -1,21 +1,22 @@
 name: OWASP ZAP DAST Scan
 
-on: 
-  push: 
-    branches: 
-      - main 
-  pull_request: 
-    branches: 
-      - main 
-    schedule: 
-      - cron: '0 1 * * *'
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 1 * * *'
 
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4.1.1
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up ZAP
         run: |
@@ -25,10 +26,10 @@ jobs:
 
       - name: Run ZAP Scan
         run: |
-          /home/runner/work/zap/ZAP_2_11_1/zap.sh -quickurl https://ui-dev.joyit.io/recruitment/dashboard -apikey htluc3g86mchlm0scp2o2cg7ea
+          /home/runner/work/zap/ZAP_2_11_1/zap.sh -quickurl https://example.com -apikey YOUR_API_KEY
 
       - name: Upload results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: zap-scan-results
           path: /home/runner/work/zap/scan_results.xml
