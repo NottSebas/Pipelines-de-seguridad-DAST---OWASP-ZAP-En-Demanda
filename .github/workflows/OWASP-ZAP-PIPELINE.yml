@@ -1,9 +1,6 @@
 name: OWASP ZAP DAST Scan
 
 on:
-  schedule:
-    # Ejecuta el escaneo todos los días a las 01:00
-    - cron: '0 1 * * *'
 
 jobs:
   zap_scan:
