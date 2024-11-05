@@ -21,7 +21,7 @@ jobs:
 
             - name: Run ZAP Scan
                 run: |
-                    /home/runner/work/zap/owasp-zap/zap.sh -quick -quickurl https://example.com -apikey YOUR_API_KEY
+                    /home/runner/work/zap/owasp-zap/zap.sh -quick -quickurl https://example.com -apikey htluc3g86mchlm0scp2o2cg7ea
 
             - name: Upload results
                 uses: actions/upload-artifact@v2
