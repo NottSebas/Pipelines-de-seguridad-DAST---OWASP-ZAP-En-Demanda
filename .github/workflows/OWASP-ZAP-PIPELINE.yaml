@@ -1,4 +1,4 @@
-name: OWASP ZAP DAST Scan - Sebastian
+name: OWASP ZAP DAST Scan
 
 on:
   schedule:
