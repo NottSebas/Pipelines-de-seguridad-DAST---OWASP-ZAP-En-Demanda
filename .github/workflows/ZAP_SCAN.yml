@@ -16,15 +16,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get remove -y containerd
-          sudo apt-get install -y docker.io
-
       - name: Run OWASP ZAP
         run: |
-          docker pull owasp/zap  # Cambia a la imagen correcta owasp/zap
+          docker pull owasp/zap
           docker run -d --name zap -u zap -p 8080:8080 owasp/zap zap.sh -daemon -host 0.0.0.0 -port 8080
           sleep 15  # Esperar a que ZAP esté listo
 
@@ -42,11 +36,3 @@ jobs:
         with:
           name: zap-report
           path: zap_report.html
-
-
-
- 
-
-
-
-
