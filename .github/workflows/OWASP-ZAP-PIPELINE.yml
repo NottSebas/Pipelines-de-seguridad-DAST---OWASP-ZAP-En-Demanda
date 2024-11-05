@@ -18,21 +18,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up ZAP
+      - name: Run OWASP ZAP using Docker
         run: |
-          wget https://github.com/zaproxy/zaproxy/releases/download/v2.11.1/ZAP_2_11_1_unix.sh
-          chmod +x ZAP_2_11_1_unix.sh
-          ./ZAP_2_11_1_unix.sh -dir /home/runner/work/zap
+          docker pull owasp/zap2docker-stable
+          docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap_report.html
 
-      - name: Run ZAP Scan
-        run: |
-          /home/runner/work/zap/ZAP_2_11_1/zap.sh -quickurl https://example.com -apikey YOUR_API_KEY
-
-      - name: Upload results
+      - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-results
-          path: /home/runner/work/zap/scan_results.xml
+          path: zap_report.html
 
       - name: Create issue for vulnerabilities
         uses: actions/github-script@v3
@@ -58,7 +53,4 @@ jobs:
               github.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `New vulnerabilities found by OWASP ZAP scan`,
-                body: `Details: [View scan results](attachment://scan_results.xml)`
-              });
-            }
+                title: `New vulnerabilities found by OWASP Z
