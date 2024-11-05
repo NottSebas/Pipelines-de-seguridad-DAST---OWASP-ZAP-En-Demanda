@@ -21,7 +21,7 @@ jobs:
       - name: Run OWASP ZAP using Docker
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:nightly
-          docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap_report.html
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r zap_report.html
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
@@ -53,4 +53,8 @@ jobs:
               github.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `New vulnerabilities found by OWASP Z
+                title: `New vulnerabilities found by OWASP ZAP scan`,
+                body: `Details: [View scan results](attachment://zap_report.html)`
+              });
+            }
+
