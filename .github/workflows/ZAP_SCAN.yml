@@ -19,7 +19,7 @@ jobs:
       - name: Run OWASP ZAP
         run: |
           docker pull owasp/dependency-check
-          docker run -d --name zap -u zap -p 8080:8080 owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080
+          docker run -d --name zap -u zap -p 8080:8080 owasp/dependency-check zap.sh -daemon -host 0.0.0.0 -port 8080
           sleep 15  # Esperar a que ZAP esté listo
 
       - name: Run OWASP ZAP Spider Scan
