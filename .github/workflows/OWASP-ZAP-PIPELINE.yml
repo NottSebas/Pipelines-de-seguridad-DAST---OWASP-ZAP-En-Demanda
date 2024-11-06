@@ -18,11 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Change directory permissions
-        run: chmod -R 777 /zap/wrk/
-
-      - name: Ensure directory ownership
-        run: sudo chown -R 1000:1000 /zap/wrk/
+      - name: Create and set permissions for work directory
+        run: |
+          mkdir -p $(pwd)/zap/wrk/
+          chmod -R 777 $(pwd)/zap/wrk/
 
       - name: Run OWASP ZAP using Docker
         run: |
@@ -30,13 +29,13 @@ jobs:
           docker run --user root -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r /zap/wrk/zap_report.html
 
       - name: List ZAP work directory
-        run: ls -la /zap/wrk/
+        run: ls -la $(pwd)/zap/wrk/
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-results
-          path: /zap/wrk/zap_report.html
+          path: $(pwd)/zap/wrk/zap_report.html
 
       - name: Create issue for vulnerabilities
         uses: actions/github-script@v3
