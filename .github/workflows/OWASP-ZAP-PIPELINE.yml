@@ -23,13 +23,16 @@ jobs:
           mkdir -p $(pwd)/zap/wrk/
           chmod -R 777 $(pwd)/zap/wrk/
 
-      - name: Run OWASP ZAP using Docker
+      - name: Run OWASP ZAP using Docker with root privileges
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:nightly
           docker run --user root -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r /zap/wrk/zap_report.html
 
       - name: List ZAP work directory
         run: ls -la $(pwd)/zap/wrk/
+
+      - name: Capture ZAP logs
+        run: docker run --user root -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r /zap/wrk/zap_report.html > zap_logs.txt
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
@@ -64,3 +67,4 @@ jobs:
                 title: `New vulnerabilities found by OWASP ZAP scan`,
                 body: `Details: [View scan results](attachment://zap_report.html)`
               });
+
