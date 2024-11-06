@@ -1,4 +1,4 @@
-name: OWASP ZAP DAST Scan
+name: OWASP ZAP DAST Scan (Sebastian)
 
 on:
   push:
@@ -18,26 +18,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create and set permissions for work directory
+      - name: Crear y setear permisos para el directorio de trabajo
         run: |
           mkdir -p $(pwd)/zap/wrk/
           chmod -R 777 $(pwd)/zap/wrk/
 
-      - name: Run OWASP ZAP using Docker with root privileges
+      - name: OWASP ZAP - DOCKER
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:nightly
           docker run --user root -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://ui-dev.joyit.io/recruitment/dashboard -r /zap/wrk/zap_report.html
 
-      - name: List ZAP work directory
+      - name: Listar directorio de trabajo
         run: ls -la $(pwd)/zap/wrk/
 
-      - name: Capture ZAP logs
+      - name: Captura logs de ZAP
         run: docker run --user root -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r /zap/wrk/zap_report.html > zap_logs.txt
 
-      - name: Upload ZAP report
+      - name: Sube los reportes de ZAP
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-results
+          name: zap-scan-resultados
           path: $(pwd)/zap/wrk/zap_report.html
 
       - name: Create issue for vulnerabilities
