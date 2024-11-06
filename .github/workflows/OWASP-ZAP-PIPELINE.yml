@@ -21,13 +21,16 @@ jobs:
       - name: Run OWASP ZAP using Docker
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:nightly
-          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r zap_report.html
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap-baseline.py -t https://example.com -r /zap/wrk/zap_report.html
+
+      - name: List ZAP work directory
+        run: ls -la /zap/wrk/
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-results
-          path: zap_report.html
+          path: /zap/wrk/zap_report.html
 
       - name: Create issue for vulnerabilities
         uses: actions/github-script@v3
